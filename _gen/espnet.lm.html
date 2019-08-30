@@ -38,7 +38,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="espnet.mt package" href="espnet.mt.html" />
-    <link rel="prev" title="espnet.asr package" href="espnet.asr.html" /> 
+    <link rel="prev" title="espnet.bin package" href="espnet.bin.html" /> 
 </head>
 
 <body class="wy-body-for-nav">
@@ -105,6 +105,7 @@
 <p class="caption"><span class="caption-text">Package Reference:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="espnet.asr.html">espnet.asr package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="espnet.bin.html">espnet.bin package</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">espnet.lm package</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#espnet-lm-lm-utils">espnet.lm.lm_utils</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#espnet-lm-chainer-backend-extlm">espnet.lm.chainer_backend.extlm</a></li>
@@ -617,6 +618,19 @@ registered hooks while the latter silently ignores them.</p>
 <em class="property">class </em><code class="sig-prename descclassname">espnet.lm.pytorch_backend.lm.</code><code class="sig-name descname">BPTTUpdater</code><span class="sig-paren">(</span><em class="sig-param">train_iter</em>, <em class="sig-param">model</em>, <em class="sig-param">optimizer</em>, <em class="sig-param">device</em>, <em class="sig-param">gradclip=None</em>, <em class="sig-param">use_apex=False</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/lm/pytorch_backend/lm.html#BPTTUpdater"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.lm.pytorch_backend.lm.BPTTUpdater" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">chainer.training.updaters.standard_updater.StandardUpdater</span></code></p>
 <p>An updater for a pytorch LM.</p>
+<p>Initialize class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>train_iter</strong> (<em>chainer.dataset.Iterator</em>) – The train iterator</p></li>
+<li><p><strong>model</strong> (<a class="reference internal" href="espnet.nets.html#espnet.nets.lm_interface.LMInterface" title="espnet.nets.lm_interface.LMInterface"><em>LMInterface</em></a>) – The model to update</p></li>
+<li><p><strong>optimizer</strong> (<em>torch.optim.Optimizer</em>) – The optimizer for training</p></li>
+<li><p><strong>device</strong> (<em>int</em>) – The device id</p></li>
+<li><p><strong>gradclip</strong> (<em>float</em>) – The gradient clipping value to use</p></li>
+<li><p><strong>use_apex</strong> (<em>bool</em>) – The flag to use Apex in backprop.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="method">
 <dt id="espnet.lm.pytorch_backend.lm.BPTTUpdater.update_core">
 <code class="sig-name descname">update_core</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/lm/pytorch_backend/lm.html#BPTTUpdater.update_core"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.lm.pytorch_backend.lm.BPTTUpdater.update_core" title="Permalink to this definition">¶</a></dt>
@@ -630,6 +644,11 @@ registered hooks while the latter silently ignores them.</p>
 <em class="property">class </em><code class="sig-prename descclassname">espnet.lm.pytorch_backend.lm.</code><code class="sig-name descname">LMEvaluator</code><span class="sig-paren">(</span><em class="sig-param">val_iter</em>, <em class="sig-param">eval_model</em>, <em class="sig-param">reporter</em>, <em class="sig-param">device</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/lm/pytorch_backend/lm.html#LMEvaluator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.lm.pytorch_backend.lm.LMEvaluator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="espnet.utils.html#espnet.utils.training.evaluator.BaseEvaluator" title="espnet.utils.training.evaluator.BaseEvaluator"><code class="xref py py-class docutils literal notranslate"><span class="pre">espnet.utils.training.evaluator.BaseEvaluator</span></code></a></p>
 <p>A custom evaluator for a pytorch LM.</p>
+<p>Initialize class.</p>
+<p>:param chainer.dataset.Iterator val_iter : The validation iterator
+:param LMInterface eval_model : The model to evaluate
+:param chainer.Reporter reporter : The observations reporter
+:param int device : The device id to use</p>
 <dl class="method">
 <dt id="espnet.lm.pytorch_backend.lm.LMEvaluator.evaluate">
 <code class="sig-name descname">evaluate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/lm/pytorch_backend/lm.html#LMEvaluator.evaluate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.lm.pytorch_backend.lm.LMEvaluator.evaluate" title="Permalink to this definition">¶</a></dt>
@@ -709,7 +728,7 @@ registered hooks while the latter silently ignores them.</p>
         <a href="espnet.mt.html" class="btn btn-neutral float-right" title="espnet.mt package" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right"></span></a>
       
       
-        <a href="espnet.asr.html" class="btn btn-neutral float-left" title="espnet.asr package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+        <a href="espnet.bin.html" class="btn btn-neutral float-left" title="espnet.bin package" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left"></span> Previous</a>
       
     </div>
   

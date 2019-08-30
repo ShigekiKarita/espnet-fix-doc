@@ -105,6 +105,7 @@
 <p class="caption"><span class="caption-text">Package Reference:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="espnet.asr.html">espnet.asr package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="espnet.bin.html">espnet.bin package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="espnet.lm.html">espnet.lm package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="espnet.mt.html">espnet.mt package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="espnet.nets.html">espnet.nets package</a></li>
@@ -218,6 +219,7 @@
 <em class="property">class </em><code class="sig-prename descclassname">espnet.tts.pytorch_backend.tts.</code><code class="sig-name descname">CustomConverter</code><a class="reference internal" href="../_modules/espnet/tts/pytorch_backend/tts.html#CustomConverter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.tts.pytorch_backend.tts.CustomConverter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Custom converter.</p>
+<p>Initilize module.</p>
 </dd></dl>
 
 <dl class="class">
@@ -225,6 +227,18 @@
 <em class="property">class </em><code class="sig-prename descclassname">espnet.tts.pytorch_backend.tts.</code><code class="sig-name descname">CustomEvaluator</code><span class="sig-paren">(</span><em class="sig-param">model</em>, <em class="sig-param">iterator</em>, <em class="sig-param">target</em>, <em class="sig-param">converter</em>, <em class="sig-param">device</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/tts/pytorch_backend/tts.html#CustomEvaluator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.tts.pytorch_backend.tts.CustomEvaluator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="espnet.utils.html#espnet.utils.training.evaluator.BaseEvaluator" title="espnet.utils.training.evaluator.BaseEvaluator"><code class="xref py py-class docutils literal notranslate"><span class="pre">espnet.utils.training.evaluator.BaseEvaluator</span></code></a></p>
 <p>Custom evaluator.</p>
+<p>Initilize module.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<em>torch.nn.Module</em>) – Pytorch model instance.</p></li>
+<li><p><strong>iterator</strong> (<em>chainer.dataset.Iterator</em>) – Iterator for validation.</p></li>
+<li><p><strong>target</strong> (<em>chainer.Chain</em>) – Dummy chain instance.</p></li>
+<li><p><strong>converter</strong> (<a class="reference internal" href="espnet.asr.html#espnet.asr.pytorch_backend.asr.CustomConverter" title="espnet.asr.pytorch_backend.asr.CustomConverter"><em>CustomConverter</em></a>) – The batch converter.</p></li>
+<li><p><strong>device</strong> (<em>torch.device</em>) – The device to be used in evaluation.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="method">
 <dt id="espnet.tts.pytorch_backend.tts.CustomEvaluator.evaluate">
 <code class="sig-name descname">evaluate</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/tts/pytorch_backend/tts.html#CustomEvaluator.evaluate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.tts.pytorch_backend.tts.CustomEvaluator.evaluate" title="Permalink to this definition">¶</a></dt>
@@ -238,6 +252,19 @@
 <em class="property">class </em><code class="sig-prename descclassname">espnet.tts.pytorch_backend.tts.</code><code class="sig-name descname">CustomUpdater</code><span class="sig-paren">(</span><em class="sig-param">model</em>, <em class="sig-param">grad_clip</em>, <em class="sig-param">iterator</em>, <em class="sig-param">optimizer</em>, <em class="sig-param">converter</em>, <em class="sig-param">device</em>, <em class="sig-param">accum_grad=1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/tts/pytorch_backend/tts.html#CustomUpdater"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.tts.pytorch_backend.tts.CustomUpdater" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">chainer.training.updaters.standard_updater.StandardUpdater</span></code></p>
 <p>Custom updater.</p>
+<p>Initilize module.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>model</strong> (<em>torch.nn.Module</em>) – Pytorch model instance.</p></li>
+<li><p><strong>grad_clip</strong> (<em>float</em>) – The gradient clipping value.</p></li>
+<li><p><strong>iterator</strong> (<em>chainer.dataset.Iterator</em>) – Iterator for training.</p></li>
+<li><p><strong>optimizer</strong> (<em>torch.optim.Optimizer</em>) – Pytorch optimizer instance.</p></li>
+<li><p><strong>converter</strong> (<a class="reference internal" href="espnet.asr.html#espnet.asr.pytorch_backend.asr.CustomConverter" title="espnet.asr.pytorch_backend.asr.CustomConverter"><em>CustomConverter</em></a>) – The batch converter.</p></li>
+<li><p><strong>device</strong> (<em>torch.device</em>) – The device to be used in training.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="method">
 <dt id="espnet.tts.pytorch_backend.tts.CustomUpdater.update">
 <code class="sig-name descname">update</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/tts/pytorch_backend/tts.html#CustomUpdater.update"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.tts.pytorch_backend.tts.CustomUpdater.update" title="Permalink to this definition">¶</a></dt>

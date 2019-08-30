@@ -105,6 +105,7 @@
 <p class="caption"><span class="caption-text">Package Reference:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="espnet.asr.html">espnet.asr package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="espnet.bin.html">espnet.bin package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="espnet.lm.html">espnet.lm package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="espnet.mt.html">espnet.mt package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="espnet.nets.html">espnet.nets package</a></li>
@@ -992,6 +993,12 @@ For choices, see espnet.asr.batchfy.BATCH_COUNT_CHOICES</p></li>
 <em class="property">class </em><code class="sig-prename descclassname">espnet.utils.training.iterators.</code><code class="sig-name descname">ShufflingEnabler</code><span class="sig-paren">(</span><em class="sig-param">iterators</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/utils/training/iterators.html#ShufflingEnabler"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.utils.training.iterators.ShufflingEnabler" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">chainer.training.extension.Extension</span></code></p>
 <p>An extension enabling shuffling on an Iterator</p>
+<p>Inits the ShufflingEnabler</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>iterators</strong> (<em>list</em><em>[</em><em>Iterator</em><em>]</em>) – The iterators to enable shuffling on</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="class">
@@ -999,6 +1006,21 @@ For choices, see espnet.asr.batchfy.BATCH_COUNT_CHOICES</p></li>
 <em class="property">class </em><code class="sig-prename descclassname">espnet.utils.training.iterators.</code><code class="sig-name descname">ToggleableShufflingMultiprocessIterator</code><span class="sig-paren">(</span><em class="sig-param">dataset</em>, <em class="sig-param">batch_size</em>, <em class="sig-param">repeat=True</em>, <em class="sig-param">shuffle=True</em>, <em class="sig-param">n_processes=None</em>, <em class="sig-param">n_prefetch=1</em>, <em class="sig-param">shared_mem=None</em>, <em class="sig-param">maxtasksperchild=20</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/utils/training/iterators.html#ToggleableShufflingMultiprocessIterator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.utils.training.iterators.ToggleableShufflingMultiprocessIterator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">chainer.iterators.multiprocess_iterator.MultiprocessIterator</span></code></p>
 <p>A MultiprocessIterator that can have its shuffling property activated during training</p>
+<p>Init the iterator</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataset</strong> (<em>torch.nn.Tensor</em>) – The dataset to take batches from</p></li>
+<li><p><strong>batch_size</strong> (<em>int</em>) – The batch size</p></li>
+<li><p><strong>repeat</strong> (<em>bool</em>) – Whether to repeat batches or not (enables multiple epochs)</p></li>
+<li><p><strong>shuffle</strong> (<em>bool</em>) – Whether to shuffle the order of the batches</p></li>
+<li><p><strong>n_processes</strong> (<em>int</em>) – How many processes to use</p></li>
+<li><p><strong>n_prefetch</strong> (<em>int</em>) – The number of prefetch to use</p></li>
+<li><p><strong>shared_mem</strong> (<em>int</em>) – How many memory to share between processes</p></li>
+<li><p><strong>maxtasksperchild</strong> (<em>int</em>) – Maximum number of tasks per child</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="method">
 <dt id="espnet.utils.training.iterators.ToggleableShufflingMultiprocessIterator.start_shuffle">
 <code class="sig-name descname">start_shuffle</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/utils/training/iterators.html#ToggleableShufflingMultiprocessIterator.start_shuffle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.utils.training.iterators.ToggleableShufflingMultiprocessIterator.start_shuffle" title="Permalink to this definition">¶</a></dt>
@@ -1012,6 +1034,17 @@ For choices, see espnet.asr.batchfy.BATCH_COUNT_CHOICES</p></li>
 <em class="property">class </em><code class="sig-prename descclassname">espnet.utils.training.iterators.</code><code class="sig-name descname">ToggleableShufflingSerialIterator</code><span class="sig-paren">(</span><em class="sig-param">dataset</em>, <em class="sig-param">batch_size</em>, <em class="sig-param">repeat=True</em>, <em class="sig-param">shuffle=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/utils/training/iterators.html#ToggleableShufflingSerialIterator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.utils.training.iterators.ToggleableShufflingSerialIterator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">chainer.iterators.serial_iterator.SerialIterator</span></code></p>
 <p>A SerialIterator that can have its shuffling property activated during training</p>
+<p>Init the Iterator</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dataset</strong> (<em>torch.nn.Tensor</em>) – The dataset to take batches from</p></li>
+<li><p><strong>batch_size</strong> (<em>int</em>) – The batch size</p></li>
+<li><p><strong>repeat</strong> (<em>bool</em>) – Whether to repeat data (allow multiple epochs)</p></li>
+<li><p><strong>shuffle</strong> (<em>bool</em>) – Whether to shuffle the batches</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="method">
 <dt id="espnet.utils.training.iterators.ToggleableShufflingSerialIterator.start_shuffle">
 <code class="sig-name descname">start_shuffle</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/utils/training/iterators.html#ToggleableShufflingSerialIterator.start_shuffle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.utils.training.iterators.ToggleableShufflingSerialIterator.start_shuffle" title="Permalink to this definition">¶</a></dt>
@@ -1028,6 +1061,17 @@ For choices, see espnet.asr.batchfy.BATCH_COUNT_CHOICES</p></li>
 <em class="property">class </em><code class="sig-prename descclassname">espnet.utils.training.tensorboard_logger.</code><code class="sig-name descname">TensorboardLogger</code><span class="sig-paren">(</span><em class="sig-param">logger</em>, <em class="sig-param">att_reporter=None</em>, <em class="sig-param">entries=None</em>, <em class="sig-param">epoch=0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/utils/training/tensorboard_logger.html#TensorboardLogger"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.utils.training.tensorboard_logger.TensorboardLogger" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">chainer.training.extension.Extension</span></code></p>
 <p>A tensorboard logger extension</p>
+<p>Init the extension</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>logger</strong> (<em>SummaryWriter</em>) – The logger to use</p></li>
+<li><p><strong>att_reporter</strong> (<em>PlotAttentionReporter</em>) – The (optional) PlotAttentionReporter</p></li>
+<li><p><strong>entries</strong> – The entries to watch</p></li>
+<li><p><strong>epoch</strong> (<em>int</em>) – The starting epoch</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="attribute">
 <dt id="espnet.utils.training.tensorboard_logger.TensorboardLogger.default_name">
 <code class="sig-name descname">default_name</code><em class="property"> = 'espnet_tensorboard_logger'</em><a class="headerlink" href="#espnet.utils.training.tensorboard_logger.TensorboardLogger.default_name" title="Permalink to this definition">¶</a></dt>

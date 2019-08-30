@@ -105,6 +105,7 @@
 <p class="caption"><span class="caption-text">Package Reference:</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="espnet.asr.html">espnet.asr package</a></li>
+<li class="toctree-l1"><a class="reference internal" href="espnet.bin.html">espnet.bin package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="espnet.lm.html">espnet.lm package</a></li>
 <li class="toctree-l1"><a class="reference internal" href="espnet.mt.html">espnet.mt package</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">espnet.nets package</a><ul>
@@ -480,6 +481,24 @@ For chainer, list of source sequences chainer.Variable</p></li>
 <em class="property">class </em><code class="sig-prename descclassname">espnet.nets.beam_search.</code><code class="sig-name descname">BeamSearch</code><span class="sig-paren">(</span><em class="sig-param">scorers: Dict[str, espnet.nets.scorer_interface.ScorerInterface], weights: Dict[str, float], beam_size: int, vocab_size: int, sos: int, eos: int, token_list: List[str] = None, pre_beam_ratio: float = 1.5, pre_beam_score_key: str = 'decoder'</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/nets/beam_search.html#BeamSearch"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.nets.beam_search.BeamSearch" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
 <p>Beam search implementation.</p>
+<p>Initialize beam search.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>scorers</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><a class="reference internal" href="#espnet.nets.scorer_interface.ScorerInterface" title="espnet.nets.scorer_interface.ScorerInterface"><em>ScorerInterface</em></a><em>]</em>) – Dict of decoder modules e.g., Decoder, CTCPrefixScorer, LM
+The scorer will be ignored if it is <cite>None</cite></p></li>
+<li><p><strong>weights</strong> (<em>dict</em><em>[</em><em>str</em><em>, </em><em>float</em><em>]</em>) – Dict of weights for each scorers
+The scorer will be ignored if its weight is 0</p></li>
+<li><p><strong>beam_size</strong> (<em>int</em>) – The number of hypotheses kept during search</p></li>
+<li><p><strong>vocab_size</strong> (<em>int</em>) – The number of vocabulary</p></li>
+<li><p><strong>sos</strong> (<em>int</em>) – Start of sequence id</p></li>
+<li><p><strong>eos</strong> (<em>int</em>) – End of sequence id</p></li>
+<li><p><strong>token_list</strong> (<em>list</em><em>[</em><em>str</em><em>]</em>) – List of tokens for debug log</p></li>
+<li><p><strong>pre_beam_score_key</strong> (<em>str</em>) – key of scores to perform pre-beam search</p></li>
+<li><p><strong>pre_beam_ratio</strong> (<em>float</em>) – beam size in the pre-beam search will be <cite>int(pre_beam_ratio * beam_size)</cite></p></li>
+</ul>
+</dd>
+</dl>
 <dl class="method">
 <dt id="espnet.nets.beam_search.BeamSearch.append_token">
 <em class="property">static </em><code class="sig-name descname">append_token</code><span class="sig-paren">(</span><em class="sig-param">xs: torch.Tensor</em>, <em class="sig-param">x: int</em><span class="sig-paren">)</span> &#x2192; torch.Tensor<a class="reference internal" href="../_modules/espnet/nets/beam_search.html#BeamSearch.append_token"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.nets.beam_search.BeamSearch.append_token" title="Permalink to this definition">¶</a></dt>
@@ -728,6 +747,7 @@ and state dict that has string keys and state values of <cite>self.part_scorers<
 <em class="property">class </em><code class="sig-prename descclassname">espnet.nets.beam_search.</code><code class="sig-name descname">Hypothesis</code><a class="reference internal" href="../_modules/espnet/nets/beam_search.html#Hypothesis"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.nets.beam_search.Hypothesis" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></p>
 <p>Hypothesis data type.</p>
+<p>Create new instance of Hypothesis(yseq, score, scores, states)</p>
 <dl class="method">
 <dt id="espnet.nets.beam_search.Hypothesis.asdict">
 <code class="sig-name descname">asdict</code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; dict<a class="reference internal" href="../_modules/espnet/nets/beam_search.html#Hypothesis.asdict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.nets.beam_search.Hypothesis.asdict" title="Permalink to this definition">¶</a></dt>
@@ -828,6 +848,20 @@ simultaneously</p>
 “HYBRID CTC/ATTENTION ARCHITECTURE FOR END-TO-END SPEECH RECOGNITION,”
 but extended to efficiently compute the probablities of multiple labels
 simultaneously</p>
+<p>Construct CTC prefix scorer</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>x</strong> (<em>torch.Tensor</em>) – input label posterior sequences (B, T, O)</p></li>
+<li><p><strong>xlens</strong> (<em>torch.Tensor</em>) – input lengths (B,)</p></li>
+<li><p><strong>blank</strong> (<em>int</em>) – blank label id</p></li>
+<li><p><strong>eos</strong> (<em>int</em>) – end-of-sequence id</p></li>
+<li><p><strong>beam</strong> (<em>int</em>) – beam size</p></li>
+<li><p><strong>scoring_ratio</strong> (<em>float</em>) – ratio of #scored hypos to beam size</p></li>
+<li><p><strong>margin</strong> (<em>int</em>) – margin parameter for windowing (0 means no windowing)</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="method">
 <dt id="espnet.nets.ctc_prefix_score.CTCPrefixScoreTH.index_select_state">
 <code class="sig-name descname">index_select_state</code><span class="sig-paren">(</span><em class="sig-param">state</em>, <em class="sig-param">best_ids</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/nets/ctc_prefix_score.html#CTCPrefixScoreTH.index_select_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.nets.ctc_prefix_score.CTCPrefixScoreTH.index_select_state" title="Permalink to this definition">¶</a></dt>
@@ -1263,6 +1297,7 @@ and next state for ys</p>
 <em class="property">class </em><code class="sig-prename descclassname">espnet.nets.tts_interface.</code><code class="sig-name descname">TTSInterface</code><a class="reference internal" href="../_modules/espnet/nets/tts_interface.html#TTSInterface"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.nets.tts_interface.TTSInterface" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>TTS Interface for ESPnet model implementation.</p>
+<p>Initilize TTS module.</p>
 <dl class="method">
 <dt id="espnet.nets.tts_interface.TTSInterface.add_arguments">
 <em class="property">static </em><code class="sig-name descname">add_arguments</code><span class="sig-paren">(</span><em class="sig-param">parser</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/nets/tts_interface.html#TTSInterface.add_arguments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.nets.tts_interface.TTSInterface.add_arguments" title="Permalink to this definition">¶</a></dt>
@@ -3786,6 +3821,49 @@ pytorch basically uses W, b ~ Uniform(-fan_in**-0.5, fan_in**-0.5)</p>
 <p>This is a module of FastSpeech, feed-forward Transformer with duration predictor described in
 <a class="reference external" href="https://arxiv.org/pdf/1905.09263.pdf">FastSpeech: Fast, Robust and Controllable Text to Speech</a>, which does not require any auto-regressive
 processing during inference, resulting in fast decoding compared with auto-regressive Transformer.</p>
+<p>Initialize feed-forward Transformer module.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>idim</strong> (<em>int</em>) – Dimension of the inputs.</p></li>
+<li><p><strong>odim</strong> (<em>int</em>) – Dimension of the outputs.</p></li>
+<li><p><strong>args</strong> (<em>Namespace</em><em>, </em><em>optional</em>) – <ul>
+<li><p>elayers (int): Number of encoder layers.</p></li>
+<li><p>eunits (int): Number of encoder hidden units.</p></li>
+<li><p>adim (int): Number of attention transformation dimensions.</p></li>
+<li><p>aheads (int): Number of heads for multi head attention.</p></li>
+<li><p>dlayers (int): Number of decoder layers.</p></li>
+<li><p>dunits (int): Number of decoder hidden units.</p></li>
+<li><p>use_scaled_pos_enc (bool): Whether to use trainable scaled positional encoding.</p></li>
+<li><p>encoder_normalize_before (bool): Whether to perform layer normalization before encoder block.</p></li>
+<li><p>decoder_normalize_before (bool): Whether to perform layer normalization before decoder block.</p></li>
+<li><p>encoder_concat_after (bool): Whether to concatenate attention layer’s input and output in encoder.</p></li>
+<li><p>decoder_concat_after (bool): Whether to concatenate attention layer’s input and output in decoder.</p></li>
+<li><p>duration_predictor_layers (int): Number of duration predictor layers.</p></li>
+<li><p>duration_predictor_chans (int): Number of duration predictor channels.</p></li>
+<li><p>duration_predictor_kernel_size (int): Kernel size of duration predictor.</p></li>
+<li><p>spk_embed_dim (int): Number of speaker embedding dimenstions.</p></li>
+<li><p>spk_embed_integration_type: How to integrate speaker embedding.</p></li>
+<li><p>teacher_model (str): Teacher auto-regressive transformer model path.</p></li>
+<li><p>reduction_factor (int): Reduction factor.</p></li>
+<li><p>transformer_init (float): How to initialize transformer parameters.</p></li>
+<li><p>transformer_lr (float): Initial value of learning rate.</p></li>
+<li><p>transformer_warmup_steps (int): Optimizer warmup steps.</p></li>
+<li><p>transformer_enc_dropout_rate (float): Dropout rate in encoder except attention &amp; positional encoding.</p></li>
+<li><p>transformer_enc_positional_dropout_rate (float): Dropout rate after encoder positional encoding.</p></li>
+<li><p>transformer_enc_attn_dropout_rate (float): Dropout rate in encoder self-attention module.</p></li>
+<li><p>transformer_dec_dropout_rate (float): Dropout rate in decoder except attention &amp; positional encoding.</p></li>
+<li><p>transformer_dec_positional_dropout_rate (float): Dropout rate after decoder positional encoding.</p></li>
+<li><p>transformer_dec_attn_dropout_rate (float): Dropout rate in deocoder self-attention module.</p></li>
+<li><p>transformer_enc_dec_attn_dropout_rate (float): Dropout rate in encoder-deocoder attention module.</p></li>
+<li><p>use_masking (bool): Whether to use masking in calculation of loss.</p></li>
+<li><p>transfer_encoder_from_teacher: Whether to transfer encoder using teacher encoder parameters.</p></li>
+<li><p>transferred_encoder_module: Encoder module to be initialized using teacher parameters.</p></li>
+</ul>
+</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="method">
 <dt id="espnet.nets.pytorch_backend.e2e_tts_fastspeech.FeedForwardTransformer.add_arguments">
 <em class="property">static </em><code class="sig-name descname">add_arguments</code><span class="sig-paren">(</span><em class="sig-param">parser</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/nets/pytorch_backend/e2e_tts_fastspeech.html#FeedForwardTransformer.add_arguments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.nets.pytorch_backend.e2e_tts_fastspeech.FeedForwardTransformer.add_arguments" title="Permalink to this definition">¶</a></dt>
@@ -3896,6 +3974,16 @@ None: Dummy for compatibility.</p>
 <p>Guided attention loss function module.</p>
 <p>This module calculates the guided attention loss described in <a class="reference external" href="https://arxiv.org/abs/1710.08969">Efficiently Trainable Text-to-Speech System Based
 on Deep Convolutional Networks with Guided Attention</a>, which forces the attention to be diagonal.</p>
+<p>Initialize guided attention loss module.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sigma</strong> (<em>float</em><em>, </em><em>optional</em>) – Standard deviation to control how close attention to a diagonal.</p></li>
+<li><p><strong>alpha</strong> (<em>float</em><em>, </em><em>optional</em>) – Scaling coefficient (lambda).</p></li>
+<li><p><strong>reset_always</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to always reset masks.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="method">
 <dt id="espnet.nets.pytorch_backend.e2e_tts_tacotron2.GuidedAttentionLoss.forward">
 <code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param">att_ws</em>, <em class="sig-param">ilens</em>, <em class="sig-param">olens</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/nets/pytorch_backend/e2e_tts_tacotron2.html#GuidedAttentionLoss.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.nets.pytorch_backend.e2e_tts_tacotron2.GuidedAttentionLoss.forward" title="Permalink to this definition">¶</a></dt>
@@ -3927,6 +4015,57 @@ on Deep Convolutional Networks with Guided Attention</a>, which forces the atten
 <p>This is a module of Spectrogram prediction network in Tacotron2 described in <a class="reference external" href="https://arxiv.org/abs/1712.05884">Natural TTS Synthesis
 by Conditioning WaveNet on Mel Spectrogram Predictions</a>, which converts the sequence of characters
 into the sequence of Mel-filterbanks.</p>
+<p>Initialize Tacotron2 module.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>idim</strong> (<em>int</em>) – Dimension of the inputs.</p></li>
+<li><p><strong>odim</strong> (<em>int</em>) – Dimension of the outputs.</p></li>
+<li><p><strong>args</strong> (<em>Namespace</em><em>, </em><em>optional</em>) – <ul>
+<li><p>spk_embed_dim (int): Dimension of the speaker embedding.</p></li>
+<li><p>embed_dim (int): Dimension of character embedding.</p></li>
+<li><p>elayers (int): The number of encoder blstm layers.</p></li>
+<li><p>eunits (int): The number of encoder blstm units.</p></li>
+<li><p>econv_layers (int): The number of encoder conv layers.</p></li>
+<li><p>econv_filts (int): The number of encoder conv filter size.</p></li>
+<li><p>econv_chans (int): The number of encoder conv filter channels.</p></li>
+<li><p>dlayers (int): The number of decoder lstm layers.</p></li>
+<li><p>dunits (int): The number of decoder lstm units.</p></li>
+<li><p>prenet_layers (int): The number of prenet layers.</p></li>
+<li><p>prenet_units (int): The number of prenet units.</p></li>
+<li><p>postnet_layers (int): The number of postnet layers.</p></li>
+<li><p>postnet_filts (int): The number of postnet filter size.</p></li>
+<li><p>postnet_chans (int): The number of postnet filter channels.</p></li>
+<li><p>output_activation (int): The name of activation function for outputs.</p></li>
+<li><p>adim (int): The number of dimension of mlp in attention.</p></li>
+<li><p>aconv_chans (int): The number of attention conv filter channels.</p></li>
+<li><p>aconv_filts (int): The number of attention conv filter size.</p></li>
+<li><p>cumulate_att_w (bool): Whether to cumulate previous attention weight.</p></li>
+<li><p>use_batch_norm (bool): Whether to use batch normalization.</p></li>
+<li><p>use_concate (int): Whether to concatenate encoder embedding with decoder lstm outputs.</p></li>
+<li><p>dropout_rate (float): Dropout rate.</p></li>
+<li><p>zoneout_rate (float): Zoneout rate.</p></li>
+<li><p>reduction_factor (int): Reduction factor.</p></li>
+<li><p>spk_embed_dim (int): Number of speaker embedding dimenstions.</p></li>
+<li><p>spc_dim (int): Number of spectrogram embedding dimenstions (only for use_cbhg=True).</p></li>
+<li><p>use_cbhg (bool): Whether to use CBHG module.</p></li>
+<li><p>cbhg_conv_bank_layers (int): The number of convoluional banks in CBHG.</p></li>
+<li><p>cbhg_conv_bank_chans (int): The number of channels of convolutional bank in CBHG.</p></li>
+<li><p>cbhg_proj_filts (int): The number of filter size of projection layeri in CBHG.</p></li>
+<li><p>cbhg_proj_chans (int): The number of channels of projection layer in CBHG.</p></li>
+<li><p>cbhg_highway_layers (int): The number of layers of highway network in CBHG.</p></li>
+<li><p>cbhg_highway_units (int): The number of units of highway network in CBHG.</p></li>
+<li><p>cbhg_gru_units (int): The number of units of GRU in CBHG.</p></li>
+<li><p>use_masking (bool): Whether to mask padded part in loss calculation.</p></li>
+<li><p>bce_pos_weight (float): Weight of positive sample of stop token (only for use_masking=True).</p></li>
+<li><p>use-guided-attn-loss (bool): Whether to use guided attention loss.</p></li>
+<li><p>guided-attn-loss-sigma (float) Sigma in guided attention loss.</p></li>
+<li><p>guided-attn-loss-lamdba (float): Lambda in guided attention loss.</p></li>
+</ul>
+</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="method">
 <dt id="espnet.nets.pytorch_backend.e2e_tts_tacotron2.Tacotron2.add_arguments">
 <em class="property">static </em><code class="sig-name descname">add_arguments</code><span class="sig-paren">(</span><em class="sig-param">parser</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/nets/pytorch_backend/e2e_tts_tacotron2.html#Tacotron2.add_arguments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.nets.pytorch_backend.e2e_tts_tacotron2.Tacotron2.add_arguments" title="Permalink to this definition">¶</a></dt>
@@ -4031,6 +4170,15 @@ Tensor: Attention weights (L, T).</p>
 <em class="property">class </em><code class="sig-prename descclassname">espnet.nets.pytorch_backend.e2e_tts_tacotron2.</code><code class="sig-name descname">Tacotron2Loss</code><span class="sig-paren">(</span><em class="sig-param">use_masking=True</em>, <em class="sig-param">bce_pos_weight=20.0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/nets/pytorch_backend/e2e_tts_tacotron2.html#Tacotron2Loss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.nets.pytorch_backend.e2e_tts_tacotron2.Tacotron2Loss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
 <p>Loss function module for Tacotron2.</p>
+<p>Initialize Tactoron2 loss module.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>use_masking</strong> (<em>bool</em>) – Whether to mask padded part in loss calculation.</p></li>
+<li><p><strong>bce_pos_weight</strong> (<em>float</em>) – Weight of positive sample of stop token.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="method">
 <dt id="espnet.nets.pytorch_backend.e2e_tts_tacotron2.Tacotron2Loss.forward">
 <code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param">after_outs</em>, <em class="sig-param">before_outs</em>, <em class="sig-param">logits</em>, <em class="sig-param">ys</em>, <em class="sig-param">labels</em>, <em class="sig-param">olens</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/nets/pytorch_backend/e2e_tts_tacotron2.html#Tacotron2Loss.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.nets.pytorch_backend.e2e_tts_tacotron2.Tacotron2Loss.forward" title="Permalink to this definition">¶</a></dt>
@@ -4068,6 +4216,16 @@ Tensor: Binary cross entropy loss value.</p>
 <em class="property">class </em><code class="sig-prename descclassname">espnet.nets.pytorch_backend.e2e_tts_transformer.</code><code class="sig-name descname">GuidedMultiHeadAttentionLoss</code><span class="sig-paren">(</span><em class="sig-param">sigma=0.4</em>, <em class="sig-param">alpha=1.0</em>, <em class="sig-param">reset_always=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/nets/pytorch_backend/e2e_tts_transformer.html#GuidedMultiHeadAttentionLoss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.nets.pytorch_backend.e2e_tts_transformer.GuidedMultiHeadAttentionLoss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#espnet.nets.pytorch_backend.e2e_tts_tacotron2.GuidedAttentionLoss" title="espnet.nets.pytorch_backend.e2e_tts_tacotron2.GuidedAttentionLoss"><code class="xref py py-class docutils literal notranslate"><span class="pre">espnet.nets.pytorch_backend.e2e_tts_tacotron2.GuidedAttentionLoss</span></code></a></p>
 <p>Guided attention loss function module for multi head attention.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sigma</strong> (<em>float</em><em>, </em><em>optional</em>) – Standard deviation to control how close attention to a diagonal.</p></li>
+<li><p><strong>alpha</strong> (<em>float</em><em>, </em><em>optional</em>) – Scaling coefficient (lambda).</p></li>
+<li><p><strong>reset_always</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to always reset masks.</p></li>
+</ul>
+</dd>
+</dl>
+<p>Initialize guided attention loss module.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
@@ -4132,6 +4290,64 @@ Values should be numpy.ndarray (H, L, T)</p></li>
 <p>Text-to-Speech Transformer module.</p>
 <p>This is a module of text-to-speech Transformer described in <a class="reference external" href="https://arxiv.org/pdf/1809.08895.pdf">Neural Speech Synthesis with Transformer Network</a>,
 which convert the sequence of characters or phonemes into the sequence of Mel-filterbanks.</p>
+<p>Initialize TTS-Transformer module.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>idim</strong> (<em>int</em>) – Dimension of the inputs.</p></li>
+<li><p><strong>odim</strong> (<em>int</em>) – Dimension of the outputs.</p></li>
+<li><p><strong>args</strong> (<em>Namespace</em><em>, </em><em>optional</em>) – <ul>
+<li><p>embed_dim (int): Dimension of character embedding.</p></li>
+<li><p>eprenet_conv_layers (int): Number of encoder prenet convolution layers.</p></li>
+<li><p>eprenet_conv_chans (int): Number of encoder prenet convolution channels.</p></li>
+<li><p>eprenet_conv_filts (int): Filter size of encoder prenet convolution.</p></li>
+<li><p>dprenet_layers (int): Number of decoder prenet layers.</p></li>
+<li><p>dprenet_units (int): Number of decoder prenet hidden units.</p></li>
+<li><p>elayers (int): Number of encoder layers.</p></li>
+<li><p>eunits (int): Number of encoder hidden units.</p></li>
+<li><p>adim (int): Number of attention transformation dimensions.</p></li>
+<li><p>aheads (int): Number of heads for multi head attention.</p></li>
+<li><p>dlayers (int): Number of decoder layers.</p></li>
+<li><p>dunits (int): Number of decoder hidden units.</p></li>
+<li><p>postnet_layers (int): Number of postnet layers.</p></li>
+<li><p>postnet_chans (int): Number of postnet channels.</p></li>
+<li><p>postnet_filts (int): Filter size of postnet.</p></li>
+<li><p>use_scaled_pos_enc (bool): Whether to use trainable scaled positional encoding.</p></li>
+<li><p>use_batch_norm (bool): Whether to use batch normalization in encoder prenet.</p></li>
+<li><p>encoder_normalize_before (bool): Whether to perform layer normalization before encoder block.</p></li>
+<li><p>decoder_normalize_before (bool): Whether to perform layer normalization before decoder block.</p></li>
+<li><p>encoder_concat_after (bool): Whether to concatenate attention layer’s input and output in encoder.</p></li>
+<li><p>decoder_concat_after (bool): Whether to concatenate attention layer’s input and output in decoder.</p></li>
+<li><p>reduction_factor (int): Reduction factor.</p></li>
+<li><p>spk_embed_dim (int): Number of speaker embedding dimenstions.</p></li>
+<li><p>spk_embed_integration_type: How to integrate speaker embedding.</p></li>
+<li><p>transformer_init (float): How to initialize transformer parameters.</p></li>
+<li><p>transformer_lr (float): Initial value of learning rate.</p></li>
+<li><p>transformer_warmup_steps (int): Optimizer warmup steps.</p></li>
+<li><p>transformer_enc_dropout_rate (float): Dropout rate in encoder except attention &amp; positional encoding.</p></li>
+<li><p>transformer_enc_positional_dropout_rate (float): Dropout rate after encoder positional encoding.</p></li>
+<li><p>transformer_enc_attn_dropout_rate (float): Dropout rate in encoder self-attention module.</p></li>
+<li><p>transformer_dec_dropout_rate (float): Dropout rate in decoder except attention &amp; positional encoding.</p></li>
+<li><p>transformer_dec_positional_dropout_rate (float): Dropout rate after decoder positional encoding.</p></li>
+<li><p>transformer_dec_attn_dropout_rate (float): Dropout rate in deocoder self-attention module.</p></li>
+<li><p>transformer_enc_dec_attn_dropout_rate (float): Dropout rate in encoder-deocoder attention module.</p></li>
+<li><p>eprenet_dropout_rate (float): Dropout rate in encoder prenet.</p></li>
+<li><p>dprenet_dropout_rate (float): Dropout rate in decoder prenet.</p></li>
+<li><p>postnet_dropout_rate (float): Dropout rate in postnet.</p></li>
+<li><p>use_masking (bool): Whether to use masking in calculation of loss.</p></li>
+<li><p>bce_pos_weight (float): Positive sample weight in bce calculation (only for use_masking=true).</p></li>
+<li><p>loss_type (str): How to calculate loss.</p></li>
+<li><p>use_guided_attn_loss (bool): Whether to use guided attention loss.</p></li>
+<li><p>num_heads_applied_guided_attn (int): Number of heads in each layer to apply guided attention loss.</p></li>
+<li><p>num_layers_applied_guided_attn (int): Number of layers to apply guided attention loss.</p></li>
+<li><p>modules_applied_guided_attn (list): List of module names to apply guided attention loss.</p></li>
+<li><p>guided-attn-loss-sigma (float) Sigma in guided attention loss.</p></li>
+<li><p>guided-attn-loss-lambda (float): Lambda in guided attention loss.</p></li>
+</ul>
+</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="method">
 <dt id="espnet.nets.pytorch_backend.e2e_tts_transformer.Transformer.add_arguments">
 <em class="property">static </em><code class="sig-name descname">add_arguments</code><span class="sig-paren">(</span><em class="sig-param">parser</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/nets/pytorch_backend/e2e_tts_transformer.html#Transformer.add_arguments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.nets.pytorch_backend.e2e_tts_transformer.Transformer.add_arguments" title="Permalink to this definition">¶</a></dt>
@@ -4243,6 +4459,15 @@ Tensor: Encoder-decoder (source) attention weights (#layers, #heads, L, T).</p>
 <em class="property">class </em><code class="sig-prename descclassname">espnet.nets.pytorch_backend.e2e_tts_transformer.</code><code class="sig-name descname">TransformerLoss</code><span class="sig-paren">(</span><em class="sig-param">use_masking=True</em>, <em class="sig-param">bce_pos_weight=5.0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/nets/pytorch_backend/e2e_tts_transformer.html#TransformerLoss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.nets.pytorch_backend.e2e_tts_transformer.TransformerLoss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
 <p>Loss function module for TTS-Transformer.</p>
+<p>Initialize Transformer loss module.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>use_masking</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to mask padded part in loss calculation.</p></li>
+<li><p><strong>bce_pos_weight</strong> (<em>float</em><em>, </em><em>optional</em>) – Weight of positive sample of stop token (only for use_masking=True).</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="method">
 <dt id="espnet.nets.pytorch_backend.e2e_tts_transformer.TransformerLoss.forward">
 <code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param">after_outs</em>, <em class="sig-param">before_outs</em>, <em class="sig-param">logits</em>, <em class="sig-param">ys</em>, <em class="sig-param">labels</em>, <em class="sig-param">olens</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/nets/pytorch_backend/e2e_tts_transformer.html#TransformerLoss.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.nets.pytorch_backend.e2e_tts_transformer.TransformerLoss.forward" title="Permalink to this definition">¶</a></dt>
@@ -4806,6 +5031,12 @@ Tensor: Binary cross entropy loss value.</p>
 <em class="property">class </em><code class="sig-prename descclassname">espnet.nets.pytorch_backend.fastspeech.duration_calculator.</code><code class="sig-name descname">DurationCalculator</code><span class="sig-paren">(</span><em class="sig-param">teacher_model</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/nets/pytorch_backend/fastspeech/duration_calculator.html#DurationCalculator"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.nets.pytorch_backend.fastspeech.duration_calculator.DurationCalculator" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
 <p>Duration calculator module for FastSpeech.</p>
+<p>Initialize duration calculator module.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>teacher_model</strong> (<a class="reference internal" href="#espnet.nets.pytorch_backend.e2e_tts_transformer.Transformer" title="espnet.nets.pytorch_backend.e2e_tts_transformer.Transformer"><em>e2e_tts_transformer.Transformer</em></a>) – Pretrained auto-regressive Transformer.</p>
+</dd>
+</dl>
 <dl class="method">
 <dt id="espnet.nets.pytorch_backend.fastspeech.duration_calculator.DurationCalculator.forward">
 <code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param">xs</em>, <em class="sig-param">ilens</em>, <em class="sig-param">ys</em>, <em class="sig-param">olens</em>, <em class="sig-param">spembs=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/nets/pytorch_backend/fastspeech/duration_calculator.html#DurationCalculator.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.nets.pytorch_backend.fastspeech.duration_calculator.DurationCalculator.forward" title="Permalink to this definition">¶</a></dt>
@@ -4847,6 +5078,19 @@ The duration predictor predicts a duration of each frame in log domain from the 
 <p>The calculation domain of outputs is different between in <cite>forward</cite> and in <cite>inference</cite>. In <cite>forward</cite>,
 the outputs are calculated in log domain but in <cite>inference</cite>, those are calculated in linear domain.</p>
 </div>
+<p>Initilize duration predictor module.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>idim</strong> (<em>int</em>) – Input dimension.</p></li>
+<li><p><strong>n_layers</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of convolutional layers.</p></li>
+<li><p><strong>n_chans</strong> (<em>int</em><em>, </em><em>optional</em>) – Number of channels of convolutional layers.</p></li>
+<li><p><strong>kernel_size</strong> (<em>int</em><em>, </em><em>optional</em>) – Kernel size of convolutional layers.</p></li>
+<li><p><strong>dropout_rate</strong> (<em>float</em><em>, </em><em>optional</em>) – Dropout rate.</p></li>
+<li><p><strong>offset</strong> (<em>float</em><em>, </em><em>optional</em>) – Offset value to avoid nan in log domain.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="method">
 <dt id="espnet.nets.pytorch_backend.fastspeech.duration_predictor.DurationPredictor.forward">
 <code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param">xs</em>, <em class="sig-param">x_masks=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/nets/pytorch_backend/fastspeech/duration_predictor.html#DurationPredictor.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.nets.pytorch_backend.fastspeech.duration_predictor.DurationPredictor.forward" title="Permalink to this definition">¶</a></dt>
@@ -4895,6 +5139,12 @@ the outputs are calculated in log domain but in <cite>inference</cite>, those ar
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
 <p>Loss function module for duration predictor.</p>
 <p>The loss value is Calculated in log domain to make it Gaussian.</p>
+<p>Initilize duration predictor loss module.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>offset</strong> (<em>float</em><em>, </em><em>optional</em>) – Offset value to avoid nan in log domain.</p>
+</dd>
+</dl>
 <dl class="method">
 <dt id="espnet.nets.pytorch_backend.fastspeech.duration_predictor.DurationPredictorLoss.forward">
 <code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param">outputs</em>, <em class="sig-param">targets</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/nets/pytorch_backend/fastspeech/duration_predictor.html#DurationPredictorLoss.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.nets.pytorch_backend.fastspeech.duration_predictor.DurationPredictorLoss.forward" title="Permalink to this definition">¶</a></dt>
@@ -4933,6 +5183,12 @@ the outputs are calculated in log domain but in <cite>inference</cite>, those ar
 <p>This is a module of length regulator described in <a class="reference external" href="https://arxiv.org/pdf/1905.09263.pdf">FastSpeech: Fast, Robust and Controllable Text to Speech</a>.
 The length regulator expands char or phoneme-level embedding features to frame-level by repeating each
 feature based on the corresponding predicted durations.</p>
+<p>Initilize length regulator module.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>pad_value</strong> (<em>float</em><em>, </em><em>optional</em>) – Value used for padding.</p>
+</dd>
+</dl>
 <dl class="method">
 <dt id="espnet.nets.pytorch_backend.fastspeech.length_regulator.LengthRegulator.forward">
 <code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param">xs</em>, <em class="sig-param">ds</em>, <em class="sig-param">ilens</em>, <em class="sig-param">alpha=1.0</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/nets/pytorch_backend/fastspeech/length_regulator.html#LengthRegulator.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.nets.pytorch_backend.fastspeech.length_regulator.LengthRegulator.forward" title="Permalink to this definition">¶</a></dt>
@@ -5358,6 +5614,10 @@ ilens: (B,)</p>
 <em class="property">class </em><code class="sig-prename descclassname">espnet.nets.pytorch_backend.lm.default.</code><code class="sig-name descname">ClassifierWithState</code><span class="sig-paren">(</span><em class="sig-param">predictor</em>, <em class="sig-param">lossfun=CrossEntropyLoss()</em>, <em class="sig-param">label_key=-1</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/nets/pytorch_backend/lm/default.html#ClassifierWithState"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.nets.pytorch_backend.lm.default.ClassifierWithState" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
 <p>A wrapper for pytorch RNNLM.</p>
+<p>Initialize class.</p>
+<p>:param torch.nn.Module predictor : The RNNLM
+:param function lossfun : The loss function to use
+:param int/str label_key :</p>
 <dl class="method">
 <dt id="espnet.nets.pytorch_backend.lm.default.ClassifierWithState.buff_predict">
 <code class="sig-name descname">buff_predict</code><span class="sig-paren">(</span><em class="sig-param">state</em>, <em class="sig-param">x</em>, <em class="sig-param">n</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/nets/pytorch_backend/lm/default.html#ClassifierWithState.buff_predict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.nets.pytorch_backend.lm.default.ClassifierWithState.buff_predict" title="Permalink to this definition">¶</a></dt>
@@ -5420,6 +5680,15 @@ with ground truth labels.</p>
 If parallel GPUs compute this, it seems to be fine.
 See also <a class="reference external" href="https://github.com/espnet/espnet/issues/1075">https://github.com/espnet/espnet/issues/1075</a></p>
 </div>
+<p>Initialize class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_vocab</strong> (<em>int</em>) – The size of the vocabulary</p></li>
+<li><p><strong>args</strong> (<em>argparse.Namespace</em>) – configurations. see py:method:<cite>add_arguments</cite></p></li>
+</ul>
+</dd>
+</dl>
 <dl class="method">
 <dt id="espnet.nets.pytorch_backend.lm.default.DefaultRNNLM.add_arguments">
 <em class="property">static </em><code class="sig-name descname">add_arguments</code><span class="sig-paren">(</span><em class="sig-param">parser</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/nets/pytorch_backend/lm/default.html#DefaultRNNLM.add_arguments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.nets.pytorch_backend.lm.default.DefaultRNNLM.add_arguments" title="Permalink to this definition">¶</a></dt>
@@ -5516,6 +5785,17 @@ and next state for ys</p>
 <em class="property">class </em><code class="sig-prename descclassname">espnet.nets.pytorch_backend.lm.default.</code><code class="sig-name descname">RNNLM</code><span class="sig-paren">(</span><em class="sig-param">n_vocab</em>, <em class="sig-param">n_layers</em>, <em class="sig-param">n_units</em>, <em class="sig-param">typ='lstm'</em>, <em class="sig-param">dropout_rate=0.5</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/nets/pytorch_backend/lm/default.html#RNNLM"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.nets.pytorch_backend.lm.default.RNNLM" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
 <p>A pytorch RNNLM.</p>
+<p>Initialize class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_vocab</strong> (<em>int</em>) – The size of the vocabulary</p></li>
+<li><p><strong>n_layers</strong> (<em>int</em>) – The number of layers to create</p></li>
+<li><p><strong>n_units</strong> (<em>int</em>) – The number of units per layer</p></li>
+<li><p><strong>typ</strong> (<em>str</em>) – The RNN type</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="method">
 <dt id="espnet.nets.pytorch_backend.lm.default.RNNLM.forward">
 <code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param">state</em>, <em class="sig-param">x</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/nets/pytorch_backend/lm/default.html#RNNLM.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.nets.pytorch_backend.lm.default.RNNLM.forward" title="Permalink to this definition">¶</a></dt>
@@ -5543,6 +5823,15 @@ and next state for ys</p>
 <p class="admonition-title">See also</p>
 <p><a class="reference external" href="https://github.com/pytorch/examples/blob/4581968193699de14b56527296262dd76ab43557/word_language_model/model.py">https://github.com/pytorch/examples/blob/4581968193699de14b56527296262dd76ab43557/word_language_model/model.py</a></p>
 </div>
+<p>Initialize class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_vocab</strong> (<em>int</em>) – The size of the vocabulary</p></li>
+<li><p><strong>args</strong> (<em>argparse.Namespace</em>) – configurations. see py:method:<cite>add_arguments</cite></p></li>
+</ul>
+</dd>
+</dl>
 <dl class="method">
 <dt id="espnet.nets.pytorch_backend.lm.seq_rnn.SequentialRNNLM.add_arguments">
 <em class="property">static </em><code class="sig-name descname">add_arguments</code><span class="sig-paren">(</span><em class="sig-param">parser</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/nets/pytorch_backend/lm/seq_rnn.html#SequentialRNNLM.add_arguments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.nets.pytorch_backend.lm.seq_rnn.SequentialRNNLM.add_arguments" title="Permalink to this definition">¶</a></dt>
@@ -5626,6 +5915,15 @@ and next state for ys</p>
 <em class="property">class </em><code class="sig-prename descclassname">espnet.nets.pytorch_backend.lm.transformer.</code><code class="sig-name descname">TransformerLM</code><span class="sig-paren">(</span><em class="sig-param">n_vocab</em>, <em class="sig-param">args</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/nets/pytorch_backend/lm/transformer.html#TransformerLM"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.nets.pytorch_backend.lm.transformer.TransformerLM" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code>, <a class="reference internal" href="#espnet.nets.lm_interface.LMInterface" title="espnet.nets.lm_interface.LMInterface"><code class="xref py py-class docutils literal notranslate"><span class="pre">espnet.nets.lm_interface.LMInterface</span></code></a></p>
 <p>Transformer language model.</p>
+<p>Initialize class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>n_vocab</strong> (<em>int</em>) – The size of the vocabulary</p></li>
+<li><p><strong>args</strong> (<em>argparse.Namespace</em>) – configurations. see py:method:<cite>add_arguments</cite></p></li>
+</ul>
+</dd>
+</dl>
 <dl class="method">
 <dt id="espnet.nets.pytorch_backend.lm.transformer.TransformerLM.add_arguments">
 <em class="property">static </em><code class="sig-name descname">add_arguments</code><span class="sig-paren">(</span><em class="sig-param">parser</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/nets/pytorch_backend/lm/transformer.html#TransformerLM.add_arguments"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.nets.pytorch_backend.lm.transformer.TransformerLM.add_arguments" title="Permalink to this definition">¶</a></dt>
@@ -6693,6 +6991,7 @@ and next state for ys</p>
 </ul>
 </dd>
 </dl>
+<p>Transducer initializer.</p>
 <dl class="method">
 <dt id="espnet.nets.pytorch_backend.rnn.decoders_transducer.DecoderRNNT.forward">
 <code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param">hs_pad</em>, <em class="sig-param">hlens</em>, <em class="sig-param">ys_pad</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/nets/pytorch_backend/rnn/decoders_transducer.html#DecoderRNNT.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.nets.pytorch_backend.rnn.decoders_transducer.DecoderRNNT.forward" title="Permalink to this definition">¶</a></dt>
@@ -6838,6 +7137,7 @@ dstate (list): list of L output hidden and cell state (1, B, Hdec)</p>
 </ul>
 </dd>
 </dl>
+<p>Transducer with attention initializer.</p>
 <dl class="method">
 <dt id="espnet.nets.pytorch_backend.rnn.decoders_transducer.DecoderRNNTAtt.calculate_all_attentions">
 <code class="sig-name descname">calculate_all_attentions</code><span class="sig-paren">(</span><em class="sig-param">hs_pad</em>, <em class="sig-param">hlens</em>, <em class="sig-param">ys_pad</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/nets/pytorch_backend/rnn/decoders_transducer.html#DecoderRNNTAtt.calculate_all_attentions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.nets.pytorch_backend.rnn.decoders_transducer.DecoderRNNTAtt.calculate_all_attentions" title="Permalink to this definition">¶</a></dt>
@@ -7230,6 +7530,22 @@ This is used mostly to compare the results between offline and online implementa
 <p>CBHG module to convert log Mel-filterbanks to linear spectrogram.</p>
 <p>This is a module of CBHG introduced in <a class="reference external" href="https://arxiv.org/abs/1703.10135">Tacotron: Towards End-to-End Speech Synthesis</a>.
 The CBHG converts the sequence of log Mel-filterbanks into linear spectrogram.</p>
+<p>Initialize CBHG module.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>idim</strong> (<em>int</em>) – Dimension of the inputs.</p></li>
+<li><p><strong>odim</strong> (<em>int</em>) – Dimension of the outputs.</p></li>
+<li><p><strong>conv_bank_layers</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of convolution bank layers.</p></li>
+<li><p><strong>conv_bank_chans</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of channels in convolution bank.</p></li>
+<li><p><strong>conv_proj_filts</strong> (<em>int</em><em>, </em><em>optional</em>) – Kernel size of convolutional projection layer.</p></li>
+<li><p><strong>conv_proj_chans</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of channels in convolutional projection layer.</p></li>
+<li><p><strong>highway_layers</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of highway network layers.</p></li>
+<li><p><strong>highway_units</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of highway network units.</p></li>
+<li><p><strong>gru_units</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of GRU units (for both directions).</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="method">
 <dt id="espnet.nets.pytorch_backend.tacotron2.cbhg.CBHG.forward">
 <code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param">xs</em>, <em class="sig-param">ilens</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/nets/pytorch_backend/tacotron2/cbhg.html#CBHG.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.nets.pytorch_backend.tacotron2.cbhg.CBHG.forward" title="Permalink to this definition">¶</a></dt>
@@ -7275,6 +7591,12 @@ LongTensor: Batch of lengths of each output sequence (B,).</p>
 <em class="property">class </em><code class="sig-prename descclassname">espnet.nets.pytorch_backend.tacotron2.cbhg.</code><code class="sig-name descname">CBHGLoss</code><span class="sig-paren">(</span><em class="sig-param">use_masking=True</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/nets/pytorch_backend/tacotron2/cbhg.html#CBHGLoss"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.nets.pytorch_backend.tacotron2.cbhg.CBHGLoss" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
 <p>Loss function module for CBHG.</p>
+<p>Initialize CBHG loss module.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>use_masking</strong> (<em>bool</em>) – Whether to mask padded part in loss calculation.</p>
+</dd>
+</dl>
 <dl class="method">
 <dt id="espnet.nets.pytorch_backend.tacotron2.cbhg.CBHGLoss.forward">
 <code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param">cbhg_outs</em>, <em class="sig-param">spcs</em>, <em class="sig-param">olens</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/nets/pytorch_backend/tacotron2/cbhg.html#CBHGLoss.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.nets.pytorch_backend.tacotron2.cbhg.CBHGLoss.forward" title="Permalink to this definition">¶</a></dt>
@@ -7305,6 +7627,12 @@ Tensor: Mean square error loss value.</p>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
 <p>Highway Network module.</p>
 <p>This is a module of Highway Network introduced in <a class="reference external" href="https://arxiv.org/abs/1505.00387">Highway Networks</a>.</p>
+<p>Initialize Highway Network module.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>idim</strong> (<em>int</em>) – Dimension of the inputs.</p>
+</dd>
+</dl>
 <dl class="method">
 <dt id="espnet.nets.pytorch_backend.tacotron2.cbhg.HighwayNet.forward">
 <code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param">x</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/nets/pytorch_backend/tacotron2/cbhg.html#HighwayNet.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.nets.pytorch_backend.tacotron2.cbhg.HighwayNet.forward" title="Permalink to this definition">¶</a></dt>
@@ -7336,6 +7664,30 @@ Tensor: Mean square error loss value.</p>
 <p>This is a module of decoder of Spectrogram prediction network in Tacotron2, which described in <a class="reference external" href="https://arxiv.org/abs/1712.05884">Natural TTS
 Synthesis by Conditioning WaveNet on Mel Spectrogram Predictions</a>. The decoder generates the sequence of
 features from the sequence of the hidden states.</p>
+<p>Initialize Tacotron2 decoder module.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>idim</strong> (<em>int</em>) – Dimension of the inputs.</p></li>
+<li><p><strong>odim</strong> (<em>int</em>) – Dimension of the outputs.</p></li>
+<li><p><strong>att</strong> (<em>torch.nn.Module</em>) – Instance of attention class.</p></li>
+<li><p><strong>dlayers</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of decoder lstm layers.</p></li>
+<li><p><strong>dunits</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of decoder lstm units.</p></li>
+<li><p><strong>prenet_layers</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of prenet layers.</p></li>
+<li><p><strong>prenet_units</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of prenet units.</p></li>
+<li><p><strong>postnet_layers</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of postnet layers.</p></li>
+<li><p><strong>postnet_filts</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of postnet filter size.</p></li>
+<li><p><strong>postnet_chans</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of postnet filter channels.</p></li>
+<li><p><strong>output_activation_fn</strong> (<em>torch.nn.Module</em><em>, </em><em>optional</em>) – Activation function for outputs.</p></li>
+<li><p><strong>cumulate_att_w</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to cumulate previous attention weight.</p></li>
+<li><p><strong>use_batch_norm</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to use batch normalization.</p></li>
+<li><p><strong>use_concate</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to concatenate encoder embedding with decoder lstm outputs.</p></li>
+<li><p><strong>dropout_rate</strong> (<em>float</em><em>, </em><em>optional</em>) – Dropout rate.</p></li>
+<li><p><strong>zoneout_rate</strong> (<em>float</em><em>, </em><em>optional</em>) – Zoneout rate.</p></li>
+<li><p><strong>reduction_factor</strong> (<em>int</em><em>, </em><em>optional</em>) – Reduction factor.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="method">
 <dt id="espnet.nets.pytorch_backend.tacotron2.decoder.Decoder.calculate_all_attentions">
 <code class="sig-name descname">calculate_all_attentions</code><span class="sig-paren">(</span><em class="sig-param">hs</em>, <em class="sig-param">hlens</em>, <em class="sig-param">ys</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/nets/pytorch_backend/tacotron2/decoder.html#Decoder.calculate_all_attentions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.nets.pytorch_backend.tacotron2.decoder.Decoder.calculate_all_attentions" title="Permalink to this definition">¶</a></dt>
@@ -7429,6 +7781,20 @@ Tensor: Attention weights (L, T).</p>
 <p>This is a module of Postnet in Spectrogram prediction network, which described in <a class="reference external" href="https://arxiv.org/abs/1712.05884">Natural TTS Synthesis by
 Conditioning WaveNet on Mel Spectrogram Predictions</a>. The Postnet predicts refines the predicted
 Mel-filterbank of the decoder, which helps to compensate the detail sturcture of spectrogram.</p>
+<p>Initialize postnet module.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>idim</strong> (<em>int</em>) – Dimension of the inputs.</p></li>
+<li><p><strong>odim</strong> (<em>int</em>) – Dimension of the outputs.</p></li>
+<li><p><strong>n_layers</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of layers.</p></li>
+<li><p><strong>n_filts</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of filter size.</p></li>
+<li><p><strong>n_units</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of filter channels.</p></li>
+<li><p><strong>use_batch_norm</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to use batch normalization..</p></li>
+<li><p><strong>dropout_rate</strong> (<em>float</em><em>, </em><em>optional</em>) – Dropout rate..</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="method">
 <dt id="espnet.nets.pytorch_backend.tacotron2.decoder.Postnet.forward">
 <code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param">xs</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/nets/pytorch_backend/tacotron2/decoder.html#Postnet.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.nets.pytorch_backend.tacotron2.decoder.Postnet.forward" title="Permalink to this definition">¶</a></dt>
@@ -7461,6 +7827,17 @@ of inputs before input to auto-regressive lstm, which helps to learn diagonal at
 <p>This module alway applies dropout even in evaluation See the detail in <a href="#id69"><span class="problematic" id="id70">_`</span></a>Natural TTS Synthesis by
 Conditioning WaveNet on Mel Spectrogram Predictions`_.</p>
 </div>
+<p>Initialize prenet module.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>idim</strong> (<em>int</em>) – Dimension of the inputs.</p></li>
+<li><p><strong>odim</strong> (<em>int</em>) – Dimension of the outputs.</p></li>
+<li><p><strong>n_layers</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of prenet layers.</p></li>
+<li><p><strong>n_units</strong> (<em>int</em><em>, </em><em>optional</em>) – The number of prenet units.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="method">
 <dt id="espnet.nets.pytorch_backend.tacotron2.decoder.Prenet.forward">
 <code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param">x</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/nets/pytorch_backend/tacotron2/decoder.html#Prenet.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.nets.pytorch_backend.tacotron2.decoder.Prenet.forward" title="Permalink to this definition">¶</a></dt>
@@ -7492,6 +7869,15 @@ This code is modified from <a class="reference external" href="https://github.co
 <span class="gp">&gt;&gt;&gt; </span><span class="n">lstm</span> <span class="o">=</span> <span class="n">ZoneOutCell</span><span class="p">(</span><span class="n">lstm</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">)</span>
 </pre></div>
 </div>
+<p>Initialize zone out cell module.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cell</strong> (<em>torch.nn.Module</em>) – Pytorch recurrent cell module e.g. <cite>torch.nn.Module.LSTMCell</cite>.</p></li>
+<li><p><strong>zoneout_rate</strong> (<em>float</em><em>, </em><em>optional</em>) – Probability of zoneout from 0.0 to 1.0.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="method">
 <dt id="espnet.nets.pytorch_backend.tacotron2.decoder.ZoneOutCell.forward">
 <code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param">inputs</em>, <em class="sig-param">hidden</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/nets/pytorch_backend/tacotron2/decoder.html#ZoneOutCell.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.nets.pytorch_backend.tacotron2.decoder.ZoneOutCell.forward" title="Permalink to this definition">¶</a></dt>
@@ -7540,6 +7926,23 @@ This code is modified from <a class="reference external" href="https://github.co
 <p>This is a module of encoder of Spectrogram prediction network in Tacotron2, which described in <a class="reference external" href="https://arxiv.org/abs/1712.05884">Natural TTS
 Synthesis by Conditioning WaveNet on Mel Spectrogram Predictions</a>. This is the encoder which converts the
 sequence of characters into the sequence of hidden states.</p>
+<p>Initialize Tacotron2 encoder module.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>idim</strong> (<em>int</em>) – </p></li>
+<li><p><strong>embed_dim</strong> (<em>int</em><em>, </em><em>optional</em>) – </p></li>
+<li><p><strong>elayers</strong> (<em>int</em><em>, </em><em>optional</em>) – </p></li>
+<li><p><strong>eunits</strong> (<em>int</em><em>, </em><em>optional</em>) – </p></li>
+<li><p><strong>econv_layers</strong> (<em>int</em><em>, </em><em>optional</em>) – </p></li>
+<li><p><strong>econv_filts</strong> (<em>int</em><em>, </em><em>optional</em>) – </p></li>
+<li><p><strong>econv_chans</strong> (<em>int</em><em>, </em><em>optional</em>) – </p></li>
+<li><p><strong>use_batch_norm</strong> (<em>bool</em><em>, </em><em>optional</em>) – </p></li>
+<li><p><strong>use_residual</strong> (<em>bool</em><em>, </em><em>optional</em>) – </p></li>
+<li><p><strong>dropout_rate</strong> (<em>float</em><em>, </em><em>optional</em>) – </p></li>
+</ul>
+</dd>
+</dl>
 <dl class="method">
 <dt id="espnet.nets.pytorch_backend.tacotron2.encoder.Encoder.forward">
 <code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param">xs</em>, <em class="sig-param">ilens=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/nets/pytorch_backend/tacotron2/encoder.html#Encoder.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.nets.pytorch_backend.tacotron2.encoder.Encoder.forward" title="Permalink to this definition">¶</a></dt>
@@ -7783,6 +8186,16 @@ if False, no additional linear will be applied. i.e. x -&gt; x + att(x)</p></li>
 <em class="property">class </em><code class="sig-prename descclassname">espnet.nets.pytorch_backend.transformer.embedding.</code><code class="sig-name descname">PositionalEncoding</code><span class="sig-paren">(</span><em class="sig-param">d_model</em>, <em class="sig-param">dropout_rate</em>, <em class="sig-param">max_len=5000</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/nets/pytorch_backend/transformer/embedding.html#PositionalEncoding"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.nets.pytorch_backend.transformer.embedding.PositionalEncoding" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">torch.nn.modules.module.Module</span></code></p>
 <p>Positional encoding.</p>
+<p>Initialize class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>d_model</strong> (<em>int</em>) – embedding dim</p></li>
+<li><p><strong>dropout_rate</strong> (<em>float</em>) – dropout rate</p></li>
+<li><p><strong>max_len</strong> (<em>int</em>) – maximum input length</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="method">
 <dt id="espnet.nets.pytorch_backend.transformer.embedding.PositionalEncoding.extend_pe">
 <code class="sig-name descname">extend_pe</code><span class="sig-paren">(</span><em class="sig-param">x</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/nets/pytorch_backend/transformer/embedding.html#PositionalEncoding.extend_pe"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.nets.pytorch_backend.transformer.embedding.PositionalEncoding.extend_pe" title="Permalink to this definition">¶</a></dt>
@@ -7814,6 +8227,16 @@ if False, no additional linear will be applied. i.e. x -&gt; x + att(x)</p></li>
 <dd><p>Bases: <a class="reference internal" href="#espnet.nets.pytorch_backend.transformer.embedding.PositionalEncoding" title="espnet.nets.pytorch_backend.transformer.embedding.PositionalEncoding"><code class="xref py py-class docutils literal notranslate"><span class="pre">espnet.nets.pytorch_backend.transformer.embedding.PositionalEncoding</span></code></a></p>
 <p>Scaled positional encoding module.</p>
 <p>See also: Sec. 3.2  <a class="reference external" href="https://arxiv.org/pdf/1809.08895.pdf">https://arxiv.org/pdf/1809.08895.pdf</a></p>
+<p>Initialize class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>d_model</strong> (<em>int</em>) – embedding dim</p></li>
+<li><p><strong>dropout_rate</strong> (<em>float</em>) – dropout rate</p></li>
+<li><p><strong>max_len</strong> (<em>int</em>) – maximum input length</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="method">
 <dt id="espnet.nets.pytorch_backend.transformer.embedding.ScaledPositionalEncoding.forward">
 <code class="sig-name descname">forward</code><span class="sig-paren">(</span><em class="sig-param">x</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/nets/pytorch_backend/transformer/embedding.html#ScaledPositionalEncoding.forward"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.nets.pytorch_backend.transformer.embedding.ScaledPositionalEncoding.forward" title="Permalink to this definition">¶</a></dt>
@@ -8320,6 +8743,15 @@ registered hooks while the latter silently ignores them.</p>
 <em class="property">class </em><code class="sig-prename descclassname">espnet.nets.scorers.ctc.</code><code class="sig-name descname">CTCPrefixScorer</code><span class="sig-paren">(</span><em class="sig-param">ctc: torch.nn.modules.module.Module</em>, <em class="sig-param">eos: int</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/nets/scorers/ctc.html#CTCPrefixScorer"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.nets.scorers.ctc.CTCPrefixScorer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#espnet.nets.scorer_interface.PartialScorerInterface" title="espnet.nets.scorer_interface.PartialScorerInterface"><code class="xref py py-class docutils literal notranslate"><span class="pre">espnet.nets.scorer_interface.PartialScorerInterface</span></code></a></p>
 <p>Decoder interface wrapper for CTCPrefixScore.</p>
+<p>Initialize class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ctc</strong> (<em>torch.nn.Module</em>) – The CTC implementaiton. For example, <a class="reference internal" href="#espnet.nets.pytorch_backend.ctc.CTC" title="espnet.nets.pytorch_backend.ctc.CTC"><code class="xref py py-class docutils literal notranslate"><span class="pre">espnet.nets.pytorch_backend.ctc.CTC</span></code></a></p></li>
+<li><p><strong>eos</strong> (<em>int</em>) – The end-of-sequence id.</p></li>
+</ul>
+</dd>
+</dl>
 <dl class="method">
 <dt id="espnet.nets.scorers.ctc.CTCPrefixScorer.init_state">
 <code class="sig-name descname">init_state</code><span class="sig-paren">(</span><em class="sig-param">x: torch.Tensor</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/nets/scorers/ctc.html#CTCPrefixScorer.init_state"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.nets.scorers.ctc.CTCPrefixScorer.init_state" title="Permalink to this definition">¶</a></dt>
@@ -8389,6 +8821,12 @@ registered hooks while the latter silently ignores them.</p>
 <em class="property">class </em><code class="sig-prename descclassname">espnet.nets.scorers.length_bonus.</code><code class="sig-name descname">LengthBonus</code><span class="sig-paren">(</span><em class="sig-param">n_vocab: int</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/nets/scorers/length_bonus.html#LengthBonus"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.nets.scorers.length_bonus.LengthBonus" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#espnet.nets.scorer_interface.ScorerInterface" title="espnet.nets.scorer_interface.ScorerInterface"><code class="xref py py-class docutils literal notranslate"><span class="pre">espnet.nets.scorer_interface.ScorerInterface</span></code></a></p>
 <p>Length bonus in beam search.</p>
+<p>Initialize class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><p><strong>n_vocab</strong> (<em>int</em>) – The number of tokens in vocabulary for beam search</p>
+</dd>
+</dl>
 <dl class="method">
 <dt id="espnet.nets.scorers.length_bonus.LengthBonus.score">
 <code class="sig-name descname">score</code><span class="sig-paren">(</span><em class="sig-param">y</em>, <em class="sig-param">state</em>, <em class="sig-param">x</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/espnet/nets/scorers/length_bonus.html#LengthBonus.score"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#espnet.nets.scorers.length_bonus.LengthBonus.score" title="Permalink to this definition">¶</a></dt>
